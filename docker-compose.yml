@@ -1,0 +1,36 @@
+version: "1.0"
+
+services:
+  db:
+    image: postgres:latest
+    container_name: amorixa-db
+    environment:
+      POSTGRES_DB: amorixa
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      PGDATA: /data/postgres
+    networks:
+      - amorixa-auth
+    ports:
+      - "5433:5432"  # Mapeando a porta 5433 do host para a porta 5432 do container
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  amorixa-auth:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: amorixa
+      DB_USER: postgres
+      DB_PASSWORD: 12345
+    depends_on:
+      - db
+networks:
+  amorixa-auth:
+    driver: bridge
+volumes:
+  postgres_data:
